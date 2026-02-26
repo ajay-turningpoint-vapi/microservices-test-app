@@ -21,7 +21,10 @@ spec:
         - containerPort: 3002
         env:
         - name: MONGO_URI
-          value: "mongodb://mongo-order:27017/orderdb"
+          valueFrom:
+            configMapKeyRef:
+              name: microservices-config
+              key: ORDER_DB_URL
 ---
 apiVersion: v1
 kind: Service
