@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # --- Databases ---
+  mongo-user:
+    image: mongo
+    container_name: mongo-user
+    ports:
+      - "27017:27017"
+
+  mongo-order:
+    image: mongo
+    container_name: mongo-order
+    ports:
+      - "27018:27017"
+
+  # --- Services ---
+  user-service:
+    build: ./user-service
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGO_URI=mongodb://mongo-user:27017/userdb
+    depends_on:
+      - mongo-user
+
+  order-service:
+    build: ./order-service
+    ports:
+      - "3002:3002"
+    environment:
+      - MONGO_URI=mongodb://mongo-order:27017/orderdb
+    depends_on:
+      - mongo-order
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - user-service
+      - order-service

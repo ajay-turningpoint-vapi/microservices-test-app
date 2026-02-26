@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service-deploy
+spec:
+  replicas: 2 # We want 2 instances running for high availability!
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: tpvapi/user-service:v1 # Replace with your Docker Hub name
+        ports:
+        - containerPort: 3001
+        env:
+        - name: MONGO_URI
+          value: "mongodb://mongo-user:27017/userdb" # Connects via the K8s Service name above!
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  selector:
+    app: user-service
+  ports:
+    - port: 3001
+      targetPort: 3001
