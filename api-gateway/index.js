@@ -9,5 +9,5 @@ app.use('/auth', proxy('http://user-service:3001')); // Docker service name
 app.use('/orders', proxy('http://order-service:3002'));
 
 app.listen(3000, () => {
-    console.log('API Gateway running on port 3000');
+    console.log('Surver UP!!!!, API Gateway running on port 3000');
 });
