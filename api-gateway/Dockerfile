@@ -2,17 +2,13 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# 1. Copy package files from the gateway subdirectory
-COPY api-gateway/package*.json ./
+COPY package*.json ./
 
-# 2. Install production dependencies
-RUN npm install --production
+RUN npm install
 
-# 3. Copy the Gateway source code
-# (Assuming your gateway entry file is called index.js)
-COPY api-gateway/index.js ./index.js
+COPY . .
 
-# API Gateway traditionally runs on 3000
-EXPOSE 3000
+# For User Service use 3001, Order 3002, Gateway 3000
+EXPOSE 3000 
 
 CMD ["node", "index.js"]
