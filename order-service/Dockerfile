@@ -3,12 +3,14 @@ FROM node:18-alpine
 WORKDIR /app
 
 COPY package*.json ./
+RUN npm install --production
 
-RUN npm install
+COPY common/rabbitmq.js ./common/rabbitmq.js
+COPY order-service/index.js ./order-service/index.js
 
-COPY . .
+ENV NODE_ENV=production
+ENV PORT=3002
 
-# For User Service use 3001, Order 3002, Gateway 3000
-EXPOSE 3002 
+EXPOSE 3002
 
-CMD ["node", "index.js"]
+CMD ["node", "order-service/index.js"]

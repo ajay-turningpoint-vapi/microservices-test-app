@@ -1,14 +1,24 @@
+# Use Node.js LTS
 FROM node:18-alpine
 
 WORKDIR /app
 
+# Copy package files and install dependencies
 COPY package*.json ./
+RUN npm install --production
 
-RUN npm install
+# Copy the common rabbitmq wrapper into the container
+# Note: We assume you run the docker build from the root folder
+COPY common/rabbitmq.js ./common/rabbitmq.js
 
-COPY . .
+# Copy the service code
+COPY user-service/index.js ./user-service/index.js
 
-# For User Service use 3001, Order 3002, Gateway 3000
-EXPOSE 3001 
+# Set environment variables (Defaults)
+ENV NODE_ENV=production
+ENV PORT=3001
 
-CMD ["node", "index.js"]
+EXPOSE 3001
+
+# Start the app
+CMD ["node", "user-service/index.js"]
