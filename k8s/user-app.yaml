@@ -35,6 +35,11 @@ spec:
             secretKeyRef:
               name: microservices-secret
               key: JWT_SECRET_KEY
+        - name: RABBITMQ_URL
+          valueFrom:
+            configMapKeyRef:
+              name: microservices-config
+              key: RABBITMQ_URL
 ---             
 apiVersion: v1
 kind: Service
