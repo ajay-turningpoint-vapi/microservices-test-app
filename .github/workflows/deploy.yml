@@ -21,14 +21,15 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build and Push Docker Images
+      # CHANGED: Added '-f path/to/Dockerfile .' to build from the root context
       run: |
-        docker build -t tpvapi/api-gateway:${{ github.sha }} ./api-gateway
+        docker build -t tpvapi/api-gateway:${{ github.sha }} -f api-gateway/Dockerfile .
         docker push tpvapi/api-gateway:${{ github.sha }}
         
-        docker build -t tpvapi/user-service:${{ github.sha }} ./user-service
+        docker build -t tpvapi/user-service:${{ github.sha }} -f user-service/Dockerfile .
         docker push tpvapi/user-service:${{ github.sha }}
         
-        docker build -t tpvapi/order-service:${{ github.sha }} ./order-service
+        docker build -t tpvapi/order-service:${{ github.sha }} -f order-service/Dockerfile .
         docker push tpvapi/order-service:${{ github.sha }}
 
     - name: Update Kubernetes Manifests (macOS Version)
