@@ -2,15 +2,19 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+# Copy package files from the service subdirectory
+COPY order-service/package*.json ./
+
+# Install only production dependencies
 RUN npm install --production
 
-COPY common/rabbitmq.js ./common/rabbitmq.js
-COPY order-service/index.js ./order-service/index.js
+# Copy the shared rabbitmq logic from the common folder
+COPY common/ ./common/
 
-ENV NODE_ENV=production
-ENV PORT=3002
+# Copy the service-specific index.js
+COPY order-service/index.js ./index.js
 
+# Order Service Port
 EXPOSE 3002
 
-CMD ["node", "order-service/index.js"]
+CMD ["node", "index.js"]
