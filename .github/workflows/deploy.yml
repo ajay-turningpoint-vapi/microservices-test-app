@@ -1,55 +1,44 @@
-name: Microservices CI/CD Pipeline
+name: Microservices Local CI/CD Pipeline
 
 on:
   push:
     branches:
-      - main # This triggers the pipeline whenever you push to main
+      - main 
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    # THIS IS THE MAGIC WORD! It tells GitHub to use your Mac.
+    runs-on: self-hosted 
 
     steps:
-    # 1. Get the code from GitHub
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # 2. Login to Docker Hub so we can push images
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    # 3. Build and Push ALL Services automatically
     - name: Build and Push Docker Images
       run: |
-        # Build API Gateway
         docker build -t tpvapi/api-gateway:${{ github.sha }} ./api-gateway
         docker push tpvapi/api-gateway:${{ github.sha }}
         
-        # Build User Service
         docker build -t tpvapi/user-service:${{ github.sha }} ./user-service
         docker push tpvapi/user-service:${{ github.sha }}
         
-        # Build Order Service
         docker build -t tpvapi/order-service:${{ github.sha }} ./order-service
         docker push tpvapi/order-service:${{ github.sha }}
 
-    # 4. Update the Kubernetes YAML files with the new dynamic tags
-    - name: Update Kubernetes Manifests
+    - name: Update Kubernetes Manifests (macOS Version)
       run: |
-        sed -i "s|tpvapi/api-gateway:.*|tpvapi/api-gateway:${{ github.sha }}|g" k8s/api-gateway.yaml
-        sed -i "s|tpvapi/user-service:.*|tpvapi/user-service:${{ github.sha }}|g" k8s/user-app.yaml
-        sed -i "s|tpvapi/order-service:.*|tpvapi/order-service:${{ github.sha }}|g" k8s/order-app.yaml
-
-    # 5. Connect to your K8s Cluster and Deploy!
-    - name: Deploy to Kubernetes Cluster
-      uses: azure/k8s-set-context@v3
-      with:
-        method: kubeconfig
-        kubeconfig: ${{ secrets.KUBECONFIG_DATA }}
+        # Note: macOS uses a slightly different 'sed' syntax than Linux!
+        sed -i '' "s|tpvapi/api-gateway:.*|tpvapi/api-gateway:${{ github.sha }}|g" k8s/api-gateway.yaml
+        sed -i '' "s|tpvapi/user-service:.*|tpvapi/user-service:${{ github.sha }}|g" k8s/user-app.yaml
+        sed -i '' "s|tpvapi/order-service:.*|tpvapi/order-service:${{ github.sha }}|g" k8s/order-app.yaml
         
-    - name: Apply Manifests
+    - name: Deploy to Local Kubernetes
       run: |
+        # Because this is running on your Mac, kubectl is already authenticated to Docker Desktop!
         kubectl apply -f k8s/
